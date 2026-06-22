@@ -1,0 +1,247 @@
+<template>
+  <template if:true={step}>
+    <div class={panelClass}>
+      <!-- Header -->
+      <div class="slds-text-heading_small slds-m-bottom_x-small">
+        {step.cadenceName} · {stepDayLabel}
+      </div>
+
+      <!-- Record fields -->
+      <div class="slds-m-bottom_medium">
+        <template if:true={showPhone}>
+          <div class="slds-m-bottom_small">
+            <a href={telHref} class="phone-link" aria-label={telAriaLabel}
+              >{formattedPhone}</a
+            >
+          </div>
+        </template>
+        <template if:true={showEmailLink}>
+          <div class="slds-m-bottom_small">
+            <a class="email-link" onclick={handleEmailClick}>{step.email}</a>
+          </div>
+        </template>
+        <div class="slds-text-heading_medium">
+          <a onclick={handleTargetClick} class="record-link">{step.targetName}</a>
+        </div>
+        <template if:true={step.titleRole}>
+          <div class="slds-text-body_regular slds-text-color_weak">
+            {step.titleRole}
+          </div>
+        </template>
+        <template if:true={step.company}>
+          <div class="slds-text-body_regular slds-text-color_weak">
+            {step.company}
+          </div>
+        </template>
+        <template if:true={step.lastActivity}>
+          <div class="slds-text-body_small slds-text-color_weak">
+            Last Activity:
+            <lightning-formatted-date-time
+              value={step.lastActivity}
+              year="numeric"
+              month="short"
+              day="numeric"
+            ></lightning-formatted-date-time>
+          </div>
+        </template>
+      </div>
+
+      <!-- Script / Instructions — Email: split subject + body -->
+      <template if:true={showEmailParts}>
+        <div class="slds-m-bottom_x-small">
+          <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small">
+            <span class="slds-col slds-grow slds-text-body_small slds-text-color_weak">SUBJECT</span>
+            <lightning-button
+              label={subjectCopyLabel}
+              icon-name="utility:copy"
+              onclick={handleCopySubject}
+              variant="base"
+            ></lightning-button>
+          </div>
+          <div class="slds-text-body_regular">{emailSubject}</div>
+        </div>
+        <div class="slds-m-bottom_small">
+          <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small">
+            <span class="slds-col slds-grow slds-text-body_small slds-text-color_weak">BODY</span>
+            <lightning-button
+              label={bodyCopyLabel}
+              icon-name="utility:copy"
+              onclick={handleCopyBody}
+              variant="base"
+            ></lightning-button>
+          </div>
+          <lightning-formatted-rich-text value={emailBody}></lightning-formatted-rich-text>
+        </div>
+      </template>
+
+      <!-- Script / Instructions — Call / Task -->
+      <template if:true={showScript}>
+        <template if:false={showEmailParts}>
+          <div class="slds-m-bottom_small">
+            <div class="slds-grid slds-grid_vertical-align-center slds-m-bottom_xx-small">
+              <span class="slds-col slds-grow slds-text-body_small slds-text-color_weak">{scriptLabel}</span>
+              <lightning-button
+                label={copyLabel}
+                icon-name="utility:copy"
+                onclick={handleCopyScript}
+                variant="base"
+              ></lightning-button>
+            </div>
+            <lightning-formatted-rich-text value={step.script}></lightning-formatted-rich-text>
+          </div>
+        </template>
+      </template>
+
+      <!-- Disposition buttons — Call -->
+      <template if:true={isCall}>
+        <template if:false={disposed}>
+          <div class="slds-grid slds-wrap slds-gutters_x-small">
+            <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
+              <lightning-button
+                label="Connected"
+                data-outcome="Connected"
+                onclick={handleDisposition}
+                class="slds-w-full"
+                variant="brand"
+              ></lightning-button>
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
+              <lightning-button
+                label="No Answer"
+                data-outcome="NoAnswer"
+                onclick={handleDisposition}
+                class="slds-w-full"
+              ></lightning-button>
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
+              <lightning-button
+                label="Left VM"
+                data-outcome="LeftVM"
+                onclick={handleDisposition}
+                class="slds-w-full"
+              ></lightning-button>
+            </div>
+            <div class="slds-col slds-size_1-of-2 slds-p-bottom_x-small">
+              <lightning-button
+                label="Skip Step"
+                data-outcome="Skip"
+                onclick={handleDisposition}
+                class="slds-w-full"
+                variant="destructive-text"
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- Disposition buttons — Email / Manual Email -->
+      <template if:true={isEmail}>
+        <template if:false={disposed}>
+          <div class="slds-grid slds-gutters_x-small">
+            <div class="slds-col">
+              <lightning-button
+                label="Email Sent"
+                data-outcome="EmailSent"
+                onclick={handleDisposition}
+                variant="brand"
+              ></lightning-button>
+            </div>
+            <div class="slds-col">
+              <lightning-button
+                label="Skip Step"
+                data-outcome="Skip"
+                onclick={handleDisposition}
+                variant="destructive-text"
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- Disposition buttons — Custom -->
+      <template if:true={isCustom}>
+        <template if:false={disposed}>
+          <lightning-textarea
+            label="Notes (optional)"
+            onchange={handleNotesChange}
+            class="slds-m-bottom_small"
+          ></lightning-textarea>
+          <div class="slds-grid slds-gutters_x-small">
+            <div class="slds-col">
+              <lightning-button
+                label="Mark Complete"
+                data-outcome="Complete"
+                onclick={handleDisposition}
+                variant="brand"
+              ></lightning-button>
+            </div>
+            <div class="slds-col">
+              <lightning-button
+                label="Skip Step"
+                data-outcome="Skip"
+                onclick={handleDisposition}
+                variant="destructive-text"
+              ></lightning-button>
+            </div>
+          </div>
+        </template>
+      </template>
+
+      <!-- Connected call notes modal -->
+      <template if:true={showCallNotesModal}>
+        <div role="dialog" aria-modal="true" class="slds-modal slds-fade-in-open">
+          <div class="slds-modal__container modal-box">
+            <div class="slds-modal__header">
+              <h2 class="slds-modal__title">Call Notes</h2>
+            </div>
+            <div class="slds-modal__content slds-p-around_medium">
+              <lightning-textarea
+                label="Notes (optional)"
+                value={callNotes}
+                onchange={handleCallNotesChange}
+              ></lightning-textarea>
+            </div>
+            <div class="slds-modal__footer">
+              <lightning-button
+                label="Cancel"
+                onclick={handleCallNotesCancel}
+                class="slds-m-right_x-small"
+              ></lightning-button>
+              <lightning-button
+                label="Save &amp; Continue"
+                variant="brand"
+                onclick={handleCallNotesSubmit}
+              ></lightning-button>
+            </div>
+          </div>
+        </div>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+      </template>
+
+      <!-- Post-disposition: countdown banner -->
+      <template if:true={showCountdownBanner}>
+        <div class="slds-box slds-theme_shade slds-m-top_small">
+          <template if:false={queueComplete}>
+            <p class="slds-text-body_regular">
+              Advancing to next item in {countdown}s…
+            </p>
+            <div class="slds-grid slds-gutters_x-small slds-m-top_x-small">
+              <div class="slds-col">
+                <lightning-button
+                  label="Advance Now"
+                  onclick={handleAdvanceNow}
+                  variant="brand"
+                ></lightning-button>
+              </div>
+            </div>
+          </template>
+          <template if:true={queueComplete}>
+            <p class="slds-text-body_regular slds-text-color_success">
+              Queue complete.
+            </p>
+          </template>
+        </div>
+      </template>
+    </div>
+  </template>
+</template>

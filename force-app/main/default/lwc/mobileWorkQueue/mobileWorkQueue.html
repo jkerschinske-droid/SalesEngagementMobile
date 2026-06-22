@@ -1,0 +1,84 @@
+<template>
+  <lightning-card>
+    <div
+      slot="title"
+      class="slds-grid slds-grid_vertical-align-center slds-p-horizontal_small"
+    >
+      <template if:true={showPanel}>
+        <lightning-button-icon
+          icon-name="utility:back"
+          onclick={handleBackToList}
+          alternative-text="Back to list"
+          class="slds-m-right_x-small"
+        ></lightning-button-icon>
+      </template>
+      <span class="slds-col slds-grow slds-text-heading_small">Work Queue</span>
+    </div>
+
+    <template if:true={error}>
+      <div class="slds-p-around_medium slds-text-color_error">{error}</div>
+    </template>
+
+    <template if:true={showList}>
+      <div
+        class="toolbar slds-grid slds-gutters_xx-small slds-grid_vertical-align-center slds-p-horizontal_small slds-p-vertical_xx-small slds-border_bottom"
+      >
+        <div class="slds-col slds-grow">
+          <lightning-combobox
+            name="sortBy"
+            value={sortBy}
+            options={sortOptions}
+            onchange={handleSortChange}
+            variant="label-hidden"
+          ></lightning-combobox>
+        </div>
+        <div class="slds-col slds-grow-none">
+          <lightning-button-icon
+            icon-name={sortDirIcon}
+            onclick={handleSortDirToggle}
+            alternative-text={sortDirLabel}
+            title={sortDirLabel}
+            variant="border-filled"
+          ></lightning-button-icon>
+        </div>
+        <div class="slds-col slds-grow-none">
+          <lightning-button-menu
+            icon-name="utility:filterList"
+            alternative-text="Filters"
+            variant="border-filled"
+            menu-alignment="right"
+            onselect={handleFilterSelect}
+          >
+            <lightning-menu-item
+              value="toggleUpcoming"
+              label={filterUpcomingLabel}
+              icon-name={filterUpcomingIcon}
+            ></lightning-menu-item>
+            <lightning-menu-item
+              value="toggleMissingFields"
+              label={filterMissingLabel}
+              icon-name={filterMissingIcon}
+            ></lightning-menu-item>
+          </lightning-button-menu>
+        </div>
+      </div>
+      <c-work-queue-list
+        items={items}
+        hide-upcoming={hideUpcoming}
+        hide-missing-fields={hideMissingFields}
+        sort-by={sortBy}
+        sort-dir={sortDir}
+        onstepselected={handleStepSelected}
+      ></c-work-queue-list>
+    </template>
+
+    <template if:true={showPanel}>
+      <c-work-queue-step-panel
+        step={selectedStep}
+        next-step-id={nextStepId}
+        ondisposition={handleDisposition}
+        onnextstep={handleNextStep}
+      ></c-work-queue-step-panel>
+    </template>
+  </lightning-card>
+</template>

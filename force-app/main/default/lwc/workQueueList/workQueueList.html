@@ -1,0 +1,82 @@
+<template>
+  <template for:each={groups} for:item="group">
+    <div key={group.cadenceName}>
+      <div
+        data-id="cadence-header"
+        data-cadence={group.cadenceName}
+        class="cadence-header slds-p-around_small slds-theme_shade slds-grid slds-grid_vertical-align-center"
+        onclick={handleCadenceToggle}
+      >
+        <span class="slds-col slds-grow cadence-name slds-text-body_small slds-text-color_default">{group.cadenceName}</span>
+        <lightning-icon
+          icon-name={group.chevronIcon}
+          size="x-small"
+          class="slds-m-left_x-small"
+        ></lightning-icon>
+      </div>
+      <template if:false={group.isCollapsed}>
+        <template for:each={group.stepGroups} for:item="stepGroup">
+          <div key={stepGroup.stepKey}>
+            <div
+              data-id="step-header"
+              class="slds-p-horizontal_small slds-p-vertical_xx-small slds-text-color_weak slds-text-body_small"
+            >
+              {stepGroup.stepKey}&nbsp;({stepGroup.count})
+              <template if:true={stepGroup.overdueCount}>
+                &nbsp;·&nbsp;<span style="color: #c23934">{stepGroup.overdueCount} overdue</span>
+              </template>
+            </div>
+            <template for:each={stepGroup.rows} for:item="row">
+              <div
+                key={row.stepTrackerId}
+                data-id="step-row"
+                data-step-trackerid={row.stepTrackerId}
+                class="slds-p-around_small slds-border_bottom"
+                onclick={handleRowClick}
+              >
+                <div class="slds-grid slds-gutters_small slds-grid_vertical-align-center">
+                  <div class="slds-col slds-grow-none">
+                    <span class="icon-badge" style={row.iconBadgeStyle}>
+                      <lightning-icon
+                        icon-name={row.iconName}
+                        size="x-small"
+                        alternative-text={row.stateLabel}
+                        variant="inverse"
+                      ></lightning-icon>
+                    </span>
+                  </div>
+                  <div class="slds-col slds-grow">
+                    <div class="slds-grid slds-grid_vertical-align-center">
+                      <span class="slds-text-body_regular slds-text-color_default">{row.targetName}</span>
+                      <template if:true={row.missingField}>
+                        <lightning-icon
+                          icon-name="utility:warning"
+                          size="x-small"
+                          variant="warning"
+                          title="Missing required contact info"
+                          class="slds-m-left_xx-small"
+                        ></lightning-icon>
+                      </template>
+                    </div>
+                    <div class="slds-text-body_small slds-text-color_weak">{row.company}</div>
+                  </div>
+                  <div
+                    class="slds-col slds-grow-none slds-text-body_small"
+                    style="color:{row.stateColor}"
+                  >
+                    {row.stateLabel}
+                  </div>
+                </div>
+              </div>
+            </template>
+          </div>
+        </template>
+      </template>
+    </div>
+  </template>
+  <template if:false={hasGroups}>
+    <div class="slds-p-around_medium slds-text-color_weak slds-text-align_center">
+      No items in queue.
+    </div>
+  </template>
+</template>

@@ -1,0 +1,42 @@
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateX(2rem);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.panel-content {
+    padding: var(--lwc-spacingMedium, 1rem);
+}
+
+.panel-content.animate {
+    animation: slide-in 0.25s ease-out;
+}
+
+.phone-link {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #0070d2;
+    text-decoration: none;
+    letter-spacing: 0.02em;
+}
+
+.email-link {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #e07b00;
+    text-decoration: none;
+}
+
+.record-link {
+    color: #0070d2;
+    text-decoration: none;
+}
+
+.modal-box {
+    max-width: 24rem;
+}
